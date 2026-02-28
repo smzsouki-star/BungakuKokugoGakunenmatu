@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文学国語 クイズアプリ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 初期メニュー画面 -->
+        <div id="home-screen" class="card">
+            <h1>文学国語 Quiz</h1>
+            <p class="subtitle">作品を選択してクイズを開始してください</p>
+            <div class="menu">
+                <button class="btn-choice" onclick="startQuiz('sanshouuo')">
+                    <div>
+                        <h3>山椒魚</h3>
+                        <p>井伏鱒二</p>
+                    </div>
+                    <span>→</span>
+                </button>
+                <button class="btn-choice" onclick="startQuiz('futureWords')">
+                    <div>
+                        <h3>未来を作る言葉</h3>
+                        <p>ドミニク・チェン</p>
+                    </div>
+                    <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- クイズ画面 -->
+        <div id="quiz-screen" class="card hidden">
+            <div class="quiz-header">
+                <span id="quiz-title">作品名</span>
+                <button class="text-btn" onclick="openModal()">本文を見る</button>
+            </div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="question-container">
+                <div class="quiz-meta">
+                    <span id="level-badge" class="level-badge">初級</span>
+                    <span id="question-number">第 1 問</span>
+                </div>
+                <h2 id="question-text" class="question-text">ここに問題文が表示されます</h2>
+                <div id="options-grid" class="options-grid">
+                    <!-- ボタンが動的に生成されます -->
+                </div>
+            </div>
+            <div id="feedback-section" class="feedback hidden">
+                <h4 id="result-text">正解！</h4>
+                <p id="explanation-text">ここに解説が表示されます。</p>
+                <button class="next-btn" onclick="nextQuestion()">次へ進む</button>
+            </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="card hidden">
+            <div class="result-header">
+                <h1>クイズ完了！</h1>
+                <p id="result-subtitle">お疲れ様でした</p>
+            </div>
+            <div class="score-circle">
+                <span id="score-num" class="score-num">0</span>
+                <span id="score-total" class="score-total">/ 20</span>
+            </div>
+            <div class="menu">
+                <button class="next-btn" onclick="location.reload()">トップに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 本文表示モーダル -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2 id="modal-title" style="margin-bottom: 1.5rem;">本文</h2>
+            <div id="reading-text" class="reading-text">
+                <!-- 本文がここに挿入されます -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        // グローバルに関数を公開（type="module"の外から呼ぶため）
+        window.startQuiz = (id) => window.quizApp && window.quizApp.start(id);
+        window.openModal = () => window.quizApp && window.quizApp.openModal();
+        window.closeModal = () => window.quizApp && window.quizApp.closeModal();
+        window.nextQuestion = () => window.quizApp && window.quizApp.next();
+        window.selectOption = (idx) => window.quizApp && window.quizApp.select(idx);
+    </script>
+</body>
+</html>
