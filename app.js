@@ -11,6 +11,7 @@ class QuizApp {
         // DOM要素
         this.screens = {
             home: document.getElementById('home-screen'),
+            category: document.getElementById('category-screen'),
             quiz: document.getElementById('quiz-screen'),
             result: document.getElementById('result-screen')
         };
@@ -30,6 +31,34 @@ class QuizApp {
             modalOverlay: document.getElementById('modal-overlay'),
             modalBody: document.getElementById('reading-text')
         };
+    }
+
+    showCategorySelection(quizId) {
+        this.currentQuizId = quizId;
+        const data = quizData[quizId];
+        if (!data) return;
+
+        // 背景色の適用
+        document.body.style.backgroundColor = data.themeColor;
+        document.documentElement.style.setProperty('--accent', data.accentColor);
+
+        // カテゴリ画面の表示
+        document.getElementById('category-subtitle').textContent = data.title;
+        this.showScreen('category');
+    }
+
+    startCategory(categoryId) {
+        const data = quizData[this.currentQuizId];
+        if (!data || !data.categories || !data.categories[categoryId]) return;
+
+        this.currentQuestions = data.categories[categoryId].questions;
+        this.currentIndex = 0;
+        this.score = 0;
+
+        // UIの切り替え
+        this.showScreen('quiz');
+        this.elements.title.textContent = data.title + "（" + data.categories[categoryId].name + "）";
+        this.loadQuestion();
     }
 
     start(quizId) {
