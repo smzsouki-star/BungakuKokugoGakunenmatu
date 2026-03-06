@@ -3,6 +3,7 @@ import { quizData } from './questions.js';
 class QuizApp {
     constructor() {
         this.currentQuizId = null;
+        this.currentCategoryId = null; // 現在のカテゴリを保持
         this.currentQuestions = [];
         this.currentIndex = 0;
         this.score = 0;
@@ -48,10 +49,48 @@ class QuizApp {
     }
 
     startCategory(categoryId) {
+        this.currentCategoryId = categoryId;
         const data = quizData[this.currentQuizId];
         if (!data || !data.categories || !data.categories[categoryId]) return;
 
-        this.currentQuestions = data.categories[categoryId].questions;
+        let allQuestions = data.categories[categoryId].questions;
+
+        if (categoryId === 'kanji') {
+            const storageKey = `quiz_progress_${this.currentQuizId}_${categoryId}`;
+            let progressData = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+            let wrong = [];
+            let unanswered = [];
+            let correct = [];
+
+            allQuestions.forEach(q => {
+                if (progressData[q.id] === 'wrong') {
+                    wrong.push(q);
+                } else if (progressData[q.id] === 'correct') {
+                    correct.push(q);
+                } else {
+                    unanswered.push(q);
+                }
+            });
+
+            // 全て解答済みか（未回答・間違えが0問か）チェック
+            if (wrong.length === 0 && unanswered.length === 0) {
+                alert("漢字問題をすべて解答済みです！データをリセットして最初から出題します。");
+                localStorage.removeItem(storageKey);
+                // 全て未回答状態に戻す
+                unanswered = [...allQuestions];
+                correct = [];
+            }
+
+            // 出題順に結合（間違え＞未回答＞正解済みの順）
+            let sortedQuestions = [...wrong, ...unanswered, ...correct];
+
+            // 先頭から5問だけ抽出
+            this.currentQuestions = sortedQuestions.slice(0, 5);
+        } else {
+            this.currentQuestions = allQuestions;
+        }
+
         this.currentIndex = 0;
         this.score = 0;
 
@@ -114,6 +153,14 @@ class QuizApp {
         const q = this.currentQuestions[this.currentIndex];
         const buttons = this.elements.optionsGrid.querySelectorAll('.option-btn');
         const isCorrect = index === q.answer;
+
+        // ロジック：漢字問題の場合は localStorage に正誤を保存
+        if (this.currentCategoryId === 'kanji') {
+            const storageKey = `quiz_progress_${this.currentQuizId}_${this.currentCategoryId}`;
+            let progressData = JSON.parse(localStorage.getItem(storageKey)) || {};
+            progressData[q.id] = isCorrect ? 'correct' : 'wrong';
+            localStorage.setItem(storageKey, JSON.stringify(progressData));
+        }
 
         if (isCorrect) {
             this.score++;
